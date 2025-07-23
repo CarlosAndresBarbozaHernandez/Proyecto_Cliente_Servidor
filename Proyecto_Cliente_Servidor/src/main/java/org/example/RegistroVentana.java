@@ -7,13 +7,15 @@ public class RegistroVentana extends JFrame{
     private JTextField txtCorreo;
     private JButton btnRegistrar;
     private JPasswordField txtPassword;
+    private JPanel MainPanel;
 
     public RegistroVentana(){
-        setTitle("Registro Cliente");
-        setSize(300,500);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setContentPane(MainPanel);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(300, 500);
         setLocationRelativeTo(null);
-        setLayout(null);
+        setVisible(true);
+        setTitle("Registrarse");
 
         btnRegistrar.addActionListener(e -> {
             Usuario newUser = new Usuario(

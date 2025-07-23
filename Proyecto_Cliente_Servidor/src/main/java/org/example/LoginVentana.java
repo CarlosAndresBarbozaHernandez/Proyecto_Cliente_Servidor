@@ -8,13 +8,16 @@ public class LoginVentana extends JFrame {
     private JPasswordField txtPassword;
     private JButton btnIniciar;
     private JButton btnRegistrarse;
+    private JPanel MainPanel;
 
     public LoginVentana(){
-        setTitle("Inicio Sesion");
-        setSize(300,200);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setContentPane(MainPanel);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(300, 200);
         setLocationRelativeTo(null);
-        setLayout(null);
+        setVisible(true);
+        setTitle("Iniciar Sesion");
+
 
         btnIniciar.addActionListener(e -> {
             Usuario user = UsuarioTxt.buscarCorreoContrasena(
