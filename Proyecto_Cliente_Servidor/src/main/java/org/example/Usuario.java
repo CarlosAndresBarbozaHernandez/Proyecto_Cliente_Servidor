@@ -3,13 +3,12 @@ package org.example;
 public class Usuario {
     private String nombre;
     private String correo;
-    private String contrasena;
+    private Rol rol;
 
-
-    public Usuario(String nombre, String correo, String contrasena){
+    public Usuario(String nombre, String correo, Rol rol) {
         this.nombre = nombre;
         this.correo = correo;
-        this.contrasena = contrasena;
+        this.rol = rol;
     }
 
     public String getNombre() {
@@ -20,7 +19,7 @@ public class Usuario {
         return correo;
     }
 
-    public String getContrasena() {
-        return contrasena;
+    public Rol getRol() {
+        return rol;
     }
 }

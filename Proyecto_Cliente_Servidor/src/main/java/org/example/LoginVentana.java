@@ -3,14 +3,13 @@ package org.example;
 import javax.swing.*;
 
 public class LoginVentana extends JFrame {
-
     private JTextField txtCorreo;
     private JPasswordField txtPassword;
     private JButton btnIniciar;
     private JButton btnRegistrarse;
     private JPanel MainPanel;
 
-    public LoginVentana(){
+    public LoginVentana() {
         setContentPane(MainPanel);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(300, 200);
@@ -18,17 +17,14 @@ public class LoginVentana extends JFrame {
         setVisible(true);
         setTitle("Iniciar Sesion");
 
-
         btnIniciar.addActionListener(e -> {
-            Usuario user = UsuarioTxt.buscarCorreoContrasena(
-                    txtCorreo.getText(),
-                    new String(txtPassword.getPassword())
-            );
-
-            if (user != null){
-                JOptionPane.showMessageDialog(this, "Bienvenido, " + user.getNombre());
+            String correo = txtCorreo.getText();
+            String contrasena = new String(txtPassword.getPassword());
+            Usuario user = UsuarioTxt.buscarPorCorreoYContrasena(correo, contrasena);
+            if (user != null) {
+                JOptionPane.showMessageDialog(this, "Bienvenido, " + user.getNombre() + " (" + user.getRol() + ")");
                 new Carrito().setVisible(true);
-            }else{
+            } else {
                 JOptionPane.showMessageDialog(this, "El correo o la contraseña se encuentra incorrecta!!!");
             }
         });
@@ -38,5 +34,4 @@ public class LoginVentana extends JFrame {
             new RegistroVentana().setVisible(true);
         });
     }
-
 }
