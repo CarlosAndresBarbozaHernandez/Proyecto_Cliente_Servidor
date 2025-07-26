@@ -4,6 +4,8 @@ public class Usuario {
     private String nombre;
     private String correo;
     private Rol rol;
+    private String primer_apellido;
+    private String segundo_apellido;
 
     public Usuario(String nombre, String correo, Rol rol) {
         this.nombre = nombre;

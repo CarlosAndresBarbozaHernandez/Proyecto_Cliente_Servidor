@@ -10,3 +10,4 @@ public enum Categoria {
 
     //Categorias para el drop menu
 }
+
