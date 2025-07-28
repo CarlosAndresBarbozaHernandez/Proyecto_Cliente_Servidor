@@ -9,7 +9,7 @@ public abstract class Producto {
 
 
     //Constructor
-    public Producto(double precio, int codigo, String nombre, double costo, Categoria categoria) {
+    public Producto(double precio, int codigo, String nombre, int inventario, Categoria categoria) {
         this.precio = precio;
         this.codigo = codigo;
         this.nombre = nombre;

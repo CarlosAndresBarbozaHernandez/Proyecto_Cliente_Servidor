@@ -3,6 +3,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class Carrito extends JFrame {
@@ -24,11 +27,13 @@ public class Carrito extends JFrame {
     private JLabel lblCarrito;
     private JLabel lblProductos;
     private JLabel lblInfo;
+
     private DefaultTableModel modeloTabla;
     private ArrayList<Producto> listaProductos = new ArrayList<>();
     private ArrayList<Producto> carrito = new ArrayList<>();
     //Lista ya filtrada para poder agregar de manera correcta objetos a tblCarrito
     private ArrayList<Producto> listaFiltrada = new ArrayList<>();
+    private ConexionDB conexionDB = new ConexionDB();
 
     public Carrito(){
         setContentPane(MainPanel);
@@ -39,10 +44,6 @@ public class Carrito extends JFrame {
         setTitle("Carrito de Compras");
 
 
-        //Datos temporales antes de la BD
-        listaProductos.add(new ProductoElectronico(101, "Laptop HP", 550000, 10, Categoria.COMPUTADORAS));
-        listaProductos.add(new ProductoElectronico(102, "iPhone 14", 800000, 5, Categoria.CELULARES));
-        listaProductos.add(new ProductoElectronico(103, "Smart TV LG", 400000, 8, Categoria.TELEVISORES));
 
         DefaultTableModel modeloProductos = new DefaultTableModel();
         modeloProductos.addColumn("Código");
@@ -50,10 +51,6 @@ public class Carrito extends JFrame {
         modeloProductos.addColumn("Inventario");
         modeloProductos.addColumn("Precio");
         tblProductos.setModel(modeloProductos);
-
-        for (Producto p : listaProductos) {
-            modeloProductos.addRow(new Object[]{p.getCodigo(), p.getNombre(), p.getInventario(), p.getPrecio()});
-        }
 
         DefaultTableModel modeloCarrito = new DefaultTableModel();
         modeloCarrito.addColumn("Código");
@@ -67,6 +64,13 @@ public class Carrito extends JFrame {
         for (Categoria c : Categoria.values()){
             cmbCategoria.addItem(c);
         }
+
+        cargarProductosDesdeBD();
+        for (Producto p : listaProductos) {
+            modeloProductos.addRow(new Object[]{p.getCodigo(), p.getNombre(), p.getInventario(), p.getPrecio()});
+        }
+
+
 
         //Para poder anadir productos dandole click al producto desde la tabla
         tblProductos.getSelectionModel().addListSelectionListener(e -> {
@@ -160,9 +164,120 @@ public class Carrito extends JFrame {
                 }
             }
         });
+        btnFactura.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (carrito.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "No hay productos en el carrito.");
+                    return;
+                }
+
+                ArrayList<String> factura = new ArrayList<>();
+                double totalCompra = 0.0;
+
+                try {
+                    conexionDB.setConexion();
+
+                    for (Producto p : carrito) {
+                        // Consultar inventario actual
+                        String consultaCantidad = "SELECT Cantidad FROM inventario WHERE ID_Inventario = ?";
+                        conexionDB.setConsulta(consultaCantidad);
+                        conexionDB.getConsulta().setInt(1, p.getCodigo());
+                        ResultSet rs = conexionDB.getResultado();
+
+                        if (rs.next()) {
+                            int cantidadActual = rs.getInt("Cantidad");
+                            int nuevaCantidad = cantidadActual - 1;
+
+                            if (nuevaCantidad < 0) {
+                                JOptionPane.showMessageDialog(null, "Inventario insuficiente para: " + p.getNombre());
+                                conexionDB.cerrarConexion();
+                                return;
+                            }
+
+                            // Actualizar inventario
+                            String updateInventario = "UPDATE inventario SET Cantidad = ? WHERE ID_Inventario = ?";
+                            conexionDB.setConsulta(updateInventario);
+                            conexionDB.getConsulta().setInt(1, nuevaCantidad);
+                            conexionDB.getConsulta().setInt(2, p.getCodigo());
+
+                            int filasActualizadas = conexionDB.getConsulta().executeUpdate();
+                            if (filasActualizadas > 0) {
+                                factura.add(p.getNombre() + " - $" + p.getPrecio());
+                                totalCompra += p.getPrecio();
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Error al actualizar inventario para: " + p.getNombre());
+                                conexionDB.cerrarConexion();
+                                return;
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Producto no encontrado en inventario: " + p.getNombre());
+                            conexionDB.cerrarConexion();
+                            return;
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error durante la actualización de inventario: " + ex.getMessage());
+                    return;
+                } finally {
+                    conexionDB.cerrarConexion();
+                }
+
+                // Generar archivo
+                try (DataOutputStream out = new DataOutputStream(new FileOutputStream("Factura.txt", true))) {
+                    out.writeBytes("*** Reporte de Compra ***\n");
+                    out.writeBytes("Total: $" + totalCompra + "\n");
+                    out.writeBytes("Productos Comprados:\n");
+                    for (String linea : factura) {
+                        out.writeBytes("- " + linea + "\n");
+                    }
+                    out.writeBytes("\n");
+
+                    JOptionPane.showMessageDialog(null, "Factura generada correctamente en 'Factura.txt'");
 
 
+                    carrito.clear();
+                    ((DefaultTableModel) tblCarrito.getModel()).setRowCount(0);
 
+
+                    cargarProductosDesdeBD();
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Error al escribir la factura: " + ex.getMessage());
+                }
+            }
+        });
+
+
+    }
+
+    private void cargarProductosDesdeBD() {
+        listaProductos.clear();
+
+        conexionDB.setConexion();
+        String copiaDatos = "SELECT i.ID_Inventario, i.Nombre_Producto, i.Precio, i.Cantidad, c.Nombre_Categoria " +
+                "FROM inventario i JOIN categoria c ON i.ID_Categoria = c.ID_Categoria";
+        conexionDB.setConsulta(copiaDatos);
+
+        try (ResultSet rs = conexionDB.getResultado()) {
+            while (rs != null && rs.next()) {
+                int codigo = rs.getInt("ID_Inventario");
+                String nombre = rs.getString("Nombre_Producto");
+                double precio = rs.getDouble("Precio");
+                int inventario = rs.getInt("Cantidad");
+                String categoriaStr = rs.getString("Nombre_Categoria");
+
+                Categoria categoria = Categoria.valueOf(categoriaStr.toUpperCase());
+                Producto p = new ProductoElectronico(codigo, nombre, precio, inventario, categoria);
+                listaProductos.add(p);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al cargar productos desde la base de datos.");
+        } finally {
+            conexionDB.cerrarConexion();
+        }
     }
 
     private void createUIComponents() {
