@@ -1,4 +1,6 @@
-package org.example;
+package org.example.Vista;
+
+import org.example.Controlador.ConexionDB;
 
 import javax.swing.*;
 import java.sql.*;

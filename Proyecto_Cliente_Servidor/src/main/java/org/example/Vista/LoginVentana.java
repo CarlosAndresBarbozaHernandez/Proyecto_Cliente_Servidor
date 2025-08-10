@@ -1,4 +1,8 @@
-package org.example;
+package org.example.Vista;
+
+import org.example.Controlador.ConexionDB;
+import org.example.Modelo.Rol;
+import org.example.Modelo.Usuario;
 
 import javax.swing.*;
 import java.sql.PreparedStatement;

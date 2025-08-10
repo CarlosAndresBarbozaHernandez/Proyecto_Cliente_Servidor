@@ -1,4 +1,7 @@
-package org.example;
+package org.example.Controlador;
+
+import org.example.Modelo.Rol;
+import org.example.Modelo.Usuario;
 
 import java.io.*;
 

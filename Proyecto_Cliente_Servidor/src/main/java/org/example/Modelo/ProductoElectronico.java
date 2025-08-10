@@ -1,7 +1,7 @@
-package org.example;
+package org.example.Modelo;
 
-//Esta clase puede que sea temporal pero puede que la vayamos a necesitar luego para la conexion con BD
-public class ProductoElectronico extends Producto{
+
+public class ProductoElectronico extends Producto {
 
     public ProductoElectronico(int codigo, String nombre, double precio, int inventario, Categoria categoria) {
         super(precio, codigo, nombre, inventario, categoria);

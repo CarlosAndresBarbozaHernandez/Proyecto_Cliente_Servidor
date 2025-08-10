@@ -1,10 +1,4 @@
-package org.example;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.util.ArrayList;
+package org.example.Modelo;
 
 public abstract class Colaborador {
     protected int id;

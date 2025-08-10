@@ -1,11 +1,15 @@
-package org.example;
+package org.example.Vista;
+import org.example.Controlador.ConexionDB;
+import org.example.Modelo.Categoria;
+import org.example.Modelo.Producto;
+import org.example.Modelo.ProductoElectronico;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class Carrito extends JFrame {

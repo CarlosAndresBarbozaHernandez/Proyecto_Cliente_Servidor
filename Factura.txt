@@ -1,0 +1,6 @@
+*** Reporte de Compra ***
+Total: $1398.99
+Productos Comprados:
+- Laptop Lenovo IdeaPad 3 - $399.99
+- MacBook Air M2 - $999.0
+
